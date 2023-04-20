@@ -1,40 +1,65 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react'
-import { ActivityIndicator, Alert, StyleSheet, Text, Image, View } from 'react-native';
-import CustomPageTitle from '../components/customComponnents/CustomPageTitle';
-import PageCointainer from '../components/PageCointainer';
-import CustomInputText from '../components/customComponnents/CustomInputText';
-import { Feather, FontAwesome } from '@expo/vector-icons';
-import CustomButtonSubmit from '../components/customComponnents/CustomButtonSubmit';
-import FormActions from '../utils/actions/FormActions';
-import { useDispatch, useSelector } from 'react-redux';
-import { formReducer } from '../utils/reducers/FormReducers';
+import React, { useEffect, useState } from 'react'
+import { Alert, StyleSheet, Image, View } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import { useDispatch } from 'react-redux';
 import colors from '../../constant/colors';
-import { UpdateAuthActioins, logout } from '../utils/actions/AuthActioins';
+import { UpdateAuthActioins } from '../utils/actions/AuthActioins';
 import { updateLoggedInUser } from '../utils/store/AuthSlice';
 import { TouchableOpacity } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import { checkImagePermissions, lunchImagePicker } from '../utils/helpers/ImageHelper';
+import { lunchImagePicker, uploadProfileImage } from '../utils/helpers/ImageHelper';
+import { ActivityIndicator } from 'react-native';
 
 const defaultProfile = require("../../assets/images/userImage.jpeg")
-export default function ProfileImage({ style = { height: 80, width: 80 }, profileImage=undefined as any}) {
-    
+export default function ProfileImage({ style = { height: 80, width: 80 },stateUserData={}, profileImage=undefined as any,uid=''}) {
+    const dispatch= useDispatch()
     const imageSource= profileImage?{uri:profileImage}:defaultProfile
     const [image, setimage] = useState(imageSource)
+    const [errors, seterrors] = useState(null)
+    const [isLoading, setisLoading] = useState(false)
+    useEffect(() => {
+        if (errors!==null) {
+          Alert.alert("An error has occurred", errors)
+        }
+      }, [errors])
     const pickImage = async () => {
 
         try {
             const assets = await lunchImagePicker()
+            
             if (assets) {
-                setimage({uri:assets[0].uri})
+                setisLoading(true)
+                // setimage({uri:assets[0].uri})
+                
+                const uploadUrl=await uploadProfileImage(assets[0].uri)
+                if(!uploadUrl){
+                    throw new Error("Failed to upload profile image")
+                }
+                const newData={userProfileImage:uploadUrl}
+                
+                dispatch(updateLoggedInUser({newData}))
+                setisLoading(false)
+               await UpdateAuthActioins(uid,newData,seterrors)
+               
+    
             }
-        } catch (error) {
-            console.error(error)
+        } catch (error:any) {
+            setisLoading(false)
+            seterrors(error.message)
         }
 
     }
     return (
         <TouchableOpacity onPress={pickImage} >
-            <Image style={{ ...styles.image, ...style }} source={image} />
+
+            {isLoading?(
+                <View style={{ ...styles.loadingContainer,...style }}>
+                       <ActivityIndicator size={'small'} color={'black'}/>
+           
+                </View>
+              ):(
+                <Image style={{ ...styles.image, ...style }} source={image} />
+            )}
+           
             <View style={styles.editContainer}>
                 <FontAwesome name="pencil"
                     size={15} color={'black'} />
@@ -63,5 +88,9 @@ const styles = StyleSheet.create({
         padding: 8,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    loadingContainer:{
+        justifyContent: 'center',
+        alignItems: 'center',
     }
 });

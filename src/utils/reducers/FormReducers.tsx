@@ -26,7 +26,7 @@ export const formReducer = (state: any, action: any) => {
     inputValidities: updatedValidities,
     formValid: formValid===false?false:updatedValidationValid
   }
-  console.log(r)
+  // console.log(r)
   // console.log(state)
   return r
 }

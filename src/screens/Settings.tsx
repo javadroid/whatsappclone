@@ -62,7 +62,7 @@ export default function Settings({ navigation }) {
       userData.userId,
       formState.inputValue, seterrors
     )
-    dispatch(updateLoggedInUser({newDate: formState.inputValue}))
+    dispatch(updateLoggedInUser({newData: formState.inputValue}))
     dispatchFormState({ formValid:false })
     setisLoading(false)
     setsuccessMassage(true)
@@ -76,7 +76,7 @@ export default function Settings({ navigation }) {
       <CustomPageTitle lable={"Settings"} />
 
       <ScrollView contentContainerStyle={styles.formContainer}>
-        <ProfileImage/>
+        <ProfileImage stateUserData={userData}  profileImage={userData.userProfileImage} uid={ userData.userId}/>
         <>
         <CustomInputText initialValue={formState.inputValue.firstName} id={"firstName"} onChangeText={onChangeTextHandler}
           icon={true} iconName={"user-o"} IconPack={FontAwesome} label={"First name"} errorText={formState.inputValidities['firstName']} />
