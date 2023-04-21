@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { ActivityIndicator, Button, FlatList, StyleSheet, Text, View } from 'react-native';
-import { HeaderButton, HeaderButtons, Item } from 'react-navigation-header-buttons';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import CustomHeaderButton from '../../components/customComponnents/CustomHeaderButton';
 import PageCointainer from '../../components/PageCointainer';
 import { FontAwesome } from '@expo/vector-icons';
@@ -10,11 +10,15 @@ import customStyle from '../../../constant/customStyle';
 import CustomKeyboardAvoidingView from '../../components/customComponnents/CustomKeyboardAvoidingView';
 import { searchUsersService } from '../../utils/Service';
 import UserCardItem from '../../components/UserCardItem';
-export default function NewChatScreen({ navigation }) {
+import { useDispatch, useSelector } from 'react-redux';
+import { setStoreUsers, setuserToChatWith } from '../../utils/store/userSlice';
+export default function NewChatScreen({ navigation ,route}) {
   const [isLoading, setisLoading] = useState(false)
   const [user, setUser] = useState<any | null>(null)
   const [noResultFound, setnoResultFound] = useState(false)
   const [searchTerm, setsearchTerm] = useState(false)
+  const userData = useSelector((state: any) => state.auth.userData)
+  const dispatch=useDispatch()
   useEffect(() => {
     navigation.setOptions({
       headerLeft: () => {
@@ -40,15 +44,17 @@ export default function NewChatScreen({ navigation }) {
         setsearchTerm(true)
         setisLoading(true)
         const userResult = await searchUsersService(text)
+      
         
         if (!userResult) {
           setUser(userResult)
-          console.log("userResult",userResult)
           setisLoading(false)
           setnoResultFound(true)
           return
         }else{
+          delete userResult[userData.userId]
           setisLoading(false)
+          
           setUser(userResult)
         }
       }
@@ -56,6 +62,11 @@ export default function NewChatScreen({ navigation }) {
     }, 500)
 
     return () => clearTimeout(delaySearch)
+  }
+
+  const handleSelectUser = (user: any) =>{
+    dispatch(setuserToChatWith({newUser:user}))
+    navigation.navigate("ChatList",{userId:user.userId})
   }
   return (
 
@@ -95,7 +106,7 @@ export default function NewChatScreen({ navigation }) {
             <FlatList data={Object.keys(user)} renderItem={(itemDate)=>{
               const userId = itemDate.item
               const userDatas=user[userId]
-              return <UserCardItem  userData={userDatas}/>
+              return <UserCardItem onPress={()=>handleSelectUser(userDatas)} userData={userDatas}/>
             }}/>
           )
         }

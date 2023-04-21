@@ -4,11 +4,11 @@ import colors from '../../constant/colors';
 import ProfileImage from './ProfileImage';
 
 
-export default function UserCardItem({userData={} as any}) {
+export default function UserCardItem({userData={} as any,onPress=undefined as any}) {
   
     return (
     
-    <TouchableWithoutFeedback>
+    <TouchableWithoutFeedback onPress={onPress}>
         <View style={styles.container}>
             <ProfileImage style={{height:50,width:50}} showEditButton={false} profileImage={userData.userProfileImage} />
             <View style={styles.textContainer}> 

@@ -7,5 +7,6 @@ export default {
      textColor:"#1c1e21",
      textError:"red",
      primaryColor:"#32d48e",
-     red:"#e74c3c"
+     red:"#e74c3c",
+     beign:"#fef5c3"
 }
