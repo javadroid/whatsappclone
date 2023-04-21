@@ -10,7 +10,7 @@ import { lunchImagePicker, uploadProfileImage } from '../utils/helpers/ImageHelp
 import { ActivityIndicator } from 'react-native';
 
 const defaultProfile = require("../../assets/images/userImage.jpeg")
-export default function ProfileImage({ style = { height: 80, width: 80 },stateUserData={}, profileImage=undefined as any,uid=''}) {
+export default function ProfileImage({ style = { height: 80, width: 80 },stateUserData={}, profileImage=undefined as any,uid='',showEditButton=true}) {
     const dispatch= useDispatch()
     const imageSource= profileImage?{uri:profileImage}:defaultProfile
     const [image, setimage] = useState(imageSource)
@@ -48,8 +48,12 @@ export default function ProfileImage({ style = { height: 80, width: 80 },stateUs
         }
 
     }
+
+    const viewProfile = async () => {
+        console.log("view profile")
+    }
     return (
-        <TouchableOpacity onPress={pickImage} >
+        <TouchableOpacity onPress={showEditButton?pickImage:viewProfile} >
 
             {isLoading?(
                 <View style={{ ...styles.loadingContainer,...style }}>
@@ -60,10 +64,15 @@ export default function ProfileImage({ style = { height: 80, width: 80 },stateUs
                 <Image style={{ ...styles.image, ...style }} source={image} />
             )}
            
-            <View style={styles.editContainer}>
+           {
+            showEditButton && !isLoading&& (
+                  <View style={styles.editContainer}>
                 <FontAwesome name="pencil"
                     size={15} color={'black'} />
             </View>
+            )
+           }
+          
         </TouchableOpacity>
     )
 }
