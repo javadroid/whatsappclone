@@ -1,19 +1,46 @@
 import { Feather } from '@expo/vector-icons';
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Button, TouchableOpacity, ImageBackground, TextInput, StyleSheet, Text, View, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import colors from '../../../constant/colors';
 import CustomKeyboardAvoidingView from '../../components/customComponnents/CustomKeyboardAvoidingView';
+import { useDispatch, useSelector } from 'react-redux';
+import PageCointainer from '../../components/PageCointainer';
+import Bubble from '../../components/Bubble';
+import { createChat } from '../../utils/Service';
 
 const backgroundImage = require('../../../assets/images/droplet.jpeg')
 
-export default function ChatScreen({ navigation }) {
+export default function ChatScreen({ navigation, route }) {
   const [messageText, setmessageText] = useState("")
+  const [chatId, setchatId] = useState(route?.params?.chatId)
+  const storedUserData = useSelector((state: any) => state.users.userToChatWith)
+  const userData = useSelector((state: any) => state.auth.userData)
+  const selectedUsers = route?.params
+  // console.log("selectedUserNew", selectedUsers)
 
-  const sendMessage = useCallback(() => {
+  useEffect(() => {
+    navigation.setOptions({
+
+      headerTitle: `${storedUserData.firstName} ${storedUserData.lastName}`,
+    })
+  }, [])
+
+  const sendMessage = useCallback(async () => {
     setmessageText("")
+    try {
+      let id = chatId
+      if (!id) {
+        id = await createChat(userData.userId,selectedUsers)
+      }
+      // setchatId(id)
+    } catch (error) {
+
+    }
+
+
   },
-    [messageText],
+    [messageText,chatId],
   )
 
 
@@ -25,6 +52,11 @@ export default function ChatScreen({ navigation }) {
       <CustomKeyboardAvoidingView>
         <ImageBackground source={backgroundImage} style={styles.backgroundImage} >
 
+          <PageCointainer edges={["right", "left", "bottom"]} style={{ backgroundColor: "transparent" }} >
+            {
+              !chatId && <Bubble message={"This is a new chat, Say hi"} />
+            }
+          </PageCointainer>
         </ImageBackground>
 
         <View style={styles.inputContainer}>
@@ -45,7 +77,7 @@ export default function ChatScreen({ navigation }) {
           }
 
         </View>
-        </CustomKeyboardAvoidingView >
+      </CustomKeyboardAvoidingView >
     </SafeAreaView>
 
   )
