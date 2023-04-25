@@ -61,8 +61,6 @@ export default function StartUpScreen() {
     }, [dispatch])
 
     return (
-        <ActivityIndicator style={customStyle.center} size={'large'} color={colors.primaryColor}>
-
-        </ActivityIndicator>
+        <ActivityIndicator style={customStyle.center} size={'large'} color={colors.primaryColor}/>
     )
 }

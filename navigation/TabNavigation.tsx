@@ -23,7 +23,7 @@ export default function TabNavigation() {
         return(
           <Tab.Navigator screenOptions={{headerTitle:'',  headerShadowVisible: false,}}>
             <Tab.Screen options={{
-              headerTitle:'Chats',
+              headerTitle:'',
               tabBarIcon:({color,size})=><Ionicons name="chatbubble-outline" size={size} color={color}  />
             }} name='ChatList' component={ChatListScreen}  />
             <Tab.Screen  options={{

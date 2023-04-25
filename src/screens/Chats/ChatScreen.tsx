@@ -7,35 +7,53 @@ import CustomKeyboardAvoidingView from '../../components/customComponnents/Custo
 import { useDispatch, useSelector } from 'react-redux';
 import PageCointainer from '../../components/PageCointainer';
 import Bubble from '../../components/Bubble';
-import { createChat } from '../../utils/Service';
+import { createChat, sendTextMessage } from '../../utils/Service';
 
 const backgroundImage = require('../../../assets/images/droplet.jpeg')
 
 export default function ChatScreen({ navigation, route }) {
+  
+  const selectedUsers = route?.params
+
   const [messageText, setmessageText] = useState("")
   const [chatId, setchatId] = useState(route?.params?.chatId)
-  const storedUserData = useSelector((state: any) => state.users.userToChatWith)
+
+
+  const userToChatWith = useSelector((state: any) => state.users.userToChatWith)
   const userData = useSelector((state: any) => state.auth.userData)
-  const selectedUsers = route?.params
-  // console.log("selectedUserNew", selectedUsers)
+  const chats = useSelector((state: any) =>  state.chats.chatsData)
+  const chatsMessage = useSelector((state: any) =>  state.messages.messageData)
+// console.log(chatsMessage)
+  const userChats= chatId && chats[chatId] 
+
+  
+
+
+  
 
   useEffect(() => {
     navigation.setOptions({
 
-      headerTitle: `${storedUserData.firstName} ${storedUserData.lastName}`,
+      headerTitle: `${userToChatWith.firstName} ${userToChatWith.lastName}`,
     })
-  }, [])
+
+    return(()=> navigation.navigate("ChatList", null))
+  }, [userData])
 
   const sendMessage = useCallback(async () => {
-    setmessageText("")
+   
     try {
       let id = chatId
       if (!id) {
         id = await createChat(userData.userId,selectedUsers)
+        setchatId(id)
       }
-      // setchatId(id)
-    } catch (error) {
 
+     await sendTextMessage(id,userData.userId,messageText)
+      setmessageText("")
+     
+    } catch (error) {
+      console.error(error)
     }
 
 

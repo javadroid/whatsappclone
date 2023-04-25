@@ -5,6 +5,7 @@ import { child, get, getDatabase, ref, set, update } from 'firebase/database'
 import { Authlogout, authenticate, updateLoggedInUser } from '../store/AuthSlice'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSelector } from 'react-redux'
+import { setStoreUsers } from '../store/userSlice'
 
 
 let timer: string | number | NodeJS.Timeout | undefined
@@ -161,8 +162,10 @@ const saveUsers = async (token: any, userId: string, expiryDate: Date, userData:
 // }
 export const logout = () => {
     return async (dispatch: any) => {
+        dispatch(Authlogout())
+        
         AsyncStorage.clear();
         clearTimeout(timer)
-        dispatch(Authlogout())
+       
     }
 }

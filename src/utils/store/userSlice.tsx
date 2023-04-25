@@ -9,18 +9,19 @@ const userSlice = createSlice({
     }, reducers: {
         setStoreUsers: (state, action) => {
             const { payload } = action
-            const newUser= payload.newData
-            const existingUser=state.storedUserData as any
-            const userArray=Object.values(newUser)
+            const newUser = payload.newUserData
+            const existingUser = state.storedUserData as any
+
+            const userArray = Object.values(newUser)
             for (let i = 0; i < userArray.length; i++) {
                 const userData = userArray[i] as any;
                 existingUser[userData.userId] = userData
-                
             }
             state.storedUserData = existingUser
 
+
         },
-        setuserToChatWith:(state, action) => {
+        setuserToChatWith: (state, action) => {
             const { payload } = action
             state.userToChatWith = payload.newUser
         },
