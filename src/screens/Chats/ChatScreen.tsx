@@ -1,7 +1,9 @@
 import { Feather } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react'
-import { Button, TouchableOpacity, ImageBackground, TextInput, StyleSheet, Text, View, KeyboardAvoidingView, Platform } from 'react-native';
+import { Button, TouchableOpacity, ImageBackground, TextInput, StyleSheet, Text, View, KeyboardAvoidingView, Platform, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+
 import colors from '../../../constant/colors';
 import CustomKeyboardAvoidingView from '../../components/customComponnents/CustomKeyboardAvoidingView';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,24 +14,37 @@ import { createChat, sendTextMessage } from '../../utils/Service';
 const backgroundImage = require('../../../assets/images/droplet.jpeg')
 
 export default function ChatScreen({ navigation, route }) {
-  
+
   const selectedUsers = route?.params
 
   const [messageText, setmessageText] = useState("")
+  const [errorBannerText, seterrorBannerText] = useState("")
   const [chatId, setchatId] = useState(route?.params?.chatId)
 
 
   const userToChatWith = useSelector((state: any) => state.users.userToChatWith)
   const userData = useSelector((state: any) => state.auth.userData)
-  const chats = useSelector((state: any) =>  state.chats.chatsData)
-  const chatsMessage = useSelector((state: any) =>  state.messages.messageData)
-// console.log(chatsMessage)
-  const userChats= chatId && chats[chatId] 
+  const chats = useSelector((state: any) => state.chats.chatsData)
+  const chatsMessage = useSelector((state: any) => {
+    if (!chatId) return []
+    const chatsMessagesData = state.messages.messagesData[chatId]
+    if (!chatsMessagesData) return []
+    const messageList = []
+    for (const key in chatsMessagesData) {
+      const message = chatsMessagesData[key]
 
+      messageList.push({ key, ...message })
+    }
+
+    return messageList
+  })
   
+  const userChats = chatId && chats[chatId]
 
 
-  
+
+
+
 
   useEffect(() => {
     navigation.setOptions({
@@ -37,28 +52,30 @@ export default function ChatScreen({ navigation, route }) {
       headerTitle: `${userToChatWith.firstName} ${userToChatWith.lastName}`,
     })
 
-    return(()=> navigation.navigate("ChatList", null))
+    return (() => navigation.navigate("ChatList", null))
   }, [userData])
 
   const sendMessage = useCallback(async () => {
-   
+    setmessageText("")
     try {
       let id = chatId
       if (!id) {
-        id = await createChat(userData.userId,selectedUsers)
+        id = await createChat(userData.userId, selectedUsers)
         setchatId(id)
       }
 
-     await sendTextMessage(id,userData.userId,messageText)
+      await sendTextMessage(id, userData.userId, messageText)
       setmessageText("")
-     
+
     } catch (error) {
       console.error(error)
+      seterrorBannerText("Message failed to send")
+      setTimeout(() => seterrorBannerText(""), 5000)
     }
 
 
   },
-    [messageText,chatId],
+    [messageText, chatId],
   )
 
 
@@ -73,6 +90,26 @@ export default function ChatScreen({ navigation, route }) {
           <PageCointainer edges={["right", "left", "bottom"]} style={{ backgroundColor: "transparent" }} >
             {
               !chatId && <Bubble message={"This is a new chat, Say hi"} />
+            }
+
+            {
+              errorBannerText !== "" && <Bubble type='error' message={errorBannerText} />
+            }
+
+            {
+              chatId &&
+              <FlatList
+                data={chatsMessage}
+                renderItem={(itemData) => {
+                  const message = itemData.item
+                  const isOwnMessage = message.sendBy ===userData.userId
+                  const messageType = isOwnMessage ? "myMessage" : "theirMessage"
+                  return <Bubble 
+                        type={messageType}
+                        message={message.text}
+                      />
+                }} />
+
             }
           </PageCointainer>
         </ImageBackground>

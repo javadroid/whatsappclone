@@ -106,6 +106,7 @@ export default function NewChatScreen({ navigation ,route}) {
             <FlatList data={Object.keys(user)} renderItem={(itemDate)=>{
               const userId = itemDate.item
               const userDatas=user[userId]
+              
               return <UserCardItem onPress={()=>handleSelectUser(userDatas)} userData={userDatas}/>
             }}/>
           )

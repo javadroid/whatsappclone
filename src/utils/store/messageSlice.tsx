@@ -12,6 +12,7 @@ const messageSlice = createSlice({
             const { chatId,messageData } = action.payload
             existingMessages[chatId]=messageData
             state.messagesData = existingMessages
+            
 
         },
     }

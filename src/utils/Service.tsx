@@ -66,7 +66,8 @@ export async function createChat(loggedInUserId: string, chatData: any) {
 }
 
 export async function searchUsersService(text: string) {
-    const searchText = text.toLowerCase()
+    const searchText = text
+    // .toLowerCase()
 
     try {
         const app = FirebaseHelper()
@@ -75,7 +76,7 @@ export async function searchUsersService(text: string) {
         const queryRef = query(userRef, orderByChild('firstName'), startAt(searchText), endAt(searchText + "\uf8ff"))
         const snapshot = await get(queryRef)
 
-
+        // console.log(snapshot.val())
         return snapshot.val()
 
     } catch (error) {
